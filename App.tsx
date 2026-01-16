@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { Plus, X, Wind, ShieldCheck, Settings, Trash2, AlertTriangle, Calendar, Download, Upload, Clock, GripHorizontal, Gem, Bug, Layout, Gamepad2, ToggleLeft, ToggleRight, Trophy, Github, Edit2, PlayCircle, RefreshCw } from 'lucide-react';
+import { Plus, X, Wind, ShieldCheck, Settings, Trash2, AlertTriangle, Calendar, Download, Upload, Clock, GripHorizontal, Gem, Bug, Layout, Gamepad2, ToggleLeft, ToggleRight, Trophy, Github, Edit2, PlayCircle, RefreshCw, Share2, Shield, Lock, FileCode, CheckCircle2, Info, Bot, Sparkles, Leaf, Map } from 'lucide-react';
 import { LogEntry, LogType, FinancialConfig, InventoryItem } from './types';
 import { APP_STORAGE_KEY, REMIND_ME_STORAGE_KEY, INVENTORY_STORAGE_KEY, WALLET_STORAGE_KEY, SETTINGS_STORAGE_KEY, QUIT_DATE_STORAGE_KEY } from './constants';
 import LogHistory from './components/LogHistory';
@@ -10,7 +10,6 @@ import GamificationCard from './components/GamificationCard';
 import RemindMeCard from './components/RemindMeCard';
 import EditEntryModal from './components/EditEntryModal';
 import RewardFeedback from './components/RewardFeedback';
-import CallToActionCard from './components/CallToActionCard';
 import CivicActionCard from './components/CivicActionCard';
 
 const FINANCIAL_STORAGE_KEY = 'breathfree_financial_v1';
@@ -47,8 +46,11 @@ const App: React.FC = () => {
   const [isRearrangeMode, setIsRearrangeMode] = useState(false);
   const [enableGamification, setEnableGamification] = useState(true);
 
-  // About Modal State
+  // Modal States
   const [showAbout, setShowAbout] = useState(false);
+  const [showOpenSource, setShowOpenSource] = useState(false);
+  const [showAITransparency, setShowAITransparency] = useState(false);
+  const [showRoadmap, setShowRoadmap] = useState(false);
 
   // Edit/Past Entry State
   const [showPastModal, setShowPastModal] = useState(false);
@@ -92,15 +94,20 @@ const App: React.FC = () => {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        const defaultKeys = ['financial', 'stats', 'history', 'remind', 'why', 'gamification', 'cta', 'civic'];
+        const defaultKeys = ['financial', 'stats', 'history', 'remind', 'why', 'gamification', 'civic'];
         const merged = [...new Set([...parsed, ...defaultKeys])];
         return merged;
       } catch (e) {
         console.error("Failed to parse card order", e);
       }
     }
-    return ['financial', 'stats', 'history', 'remind', 'why', 'gamification', 'cta', 'civic'];
+    return ['financial', 'stats', 'history', 'remind', 'why', 'gamification', 'civic'];
   });
+
+  // Refs for card scrolling
+  const cardRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  // Trigger state for sharing
+  const [shareTrigger, setShareTrigger] = useState(0);
 
   const dragItem = useRef<number | null>(null);
   const dragOverItem = useRef<number | null>(null);
@@ -269,6 +276,14 @@ const App: React.FC = () => {
       setNow(now);
   };
 
+  const handleOpenShare = () => {
+    setShareTrigger(Date.now());
+    const civicCard = cardRefs.current['civic'];
+    if (civicCard) {
+        civicCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
+
   const handleAddEntry = useCallback(async (type: LogType, count?: number, timestamp?: number) => {
     // 1. Clamp time to prevent future-date bugs (Timer appearing stopped)
     let ts = timestamp || Date.now();
@@ -420,7 +435,7 @@ const App: React.FC = () => {
           financialConfig: importedFinance, 
           remindMe: importedRemindMe, 
           cardOrder: importedOrder,
-          inventory: importedInventory,
+          inventory: importedInventory, 
           walletState: importedWallet,
           settings: importedSettings,
           quitTimestamp: importedQuitTimestamp
@@ -679,15 +694,11 @@ const App: React.FC = () => {
                 onEarn={handleEarn}
                 onDiscover={handleDiscover}
             />;
-        case 'cta':
-            return <CallToActionCard 
-                onAction={() => handleCtaAction('checkbox')}
-                isCompleted={walletState.discovered.includes('cta_checkbox')}
-            />;
         case 'civic':
             return <CivicActionCard 
                 onAction={() => handleCtaAction('link')}
                 isCompleted={walletState.discovered.includes('cta_link')}
+                triggerShare={shareTrigger}
             />;
         default: return null;
     }
@@ -862,7 +873,7 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            <div className="space-y-8 pb-12">
+            <div className="space-y-8 pb-6">
                {cardOrder.map((id, index) => {
                   const cardContent = renderCard(id);
                   if (!cardContent) return null;
@@ -870,6 +881,7 @@ const App: React.FC = () => {
                   return (
                     <div
                         key={id}
+                        ref={(el) => (cardRefs.current[id] = el)}
                         draggable={isRearrangeMode}
                         onDragStart={(e) => isRearrangeMode && handleDragStart(e, index)}
                         onDragEnter={(e) => isRearrangeMode && handleDragEnter(e, index)}
@@ -896,14 +908,26 @@ const App: React.FC = () => {
                })}
             </div>
             
+            <div className="flex justify-center mb-6">
+                <div className="w-8 h-8 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center shadow-inner">
+                    <Leaf size={14} className="text-slate-600" />
+                </div>
+            </div>
+            
             {/* Footer with Privacy Notice & About Link */}
-            <footer className="mt-12 mb-8 text-center space-y-4">
+            <footer className="mb-8 text-center space-y-4">
                 <p className="text-[10px] text-slate-600 max-w-md mx-auto leading-relaxed">
-                    Breathe Free app is open source, privacy focused, and never tracks your interactions in or out of the app.
+                    Breathe Free app is open source, privacy focused, and never tracks your interactions inside or outside of the app.
                 </p>
-                <div className="flex justify-center gap-4">
+                <div className="flex flex-wrap justify-center gap-4">
+                    <button 
+                        onClick={handleOpenShare}
+                        className="text-xs font-bold text-slate-500 hover:text-indigo-400 transition-colors flex items-center gap-1"
+                    >
+                        <Share2 size={12} /> Share App
+                    </button>
                     <a
-                        href="#" 
+                        href="https://github.com/janzt450/Breathe-Free---Quit-Vape" 
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-xs font-bold text-slate-500 hover:text-indigo-400 transition-colors flex items-center gap-1"
@@ -912,9 +936,27 @@ const App: React.FC = () => {
                     </a>
                     <button 
                         onClick={() => setShowAbout(true)}
-                        className="text-xs font-bold text-slate-500 hover:text-indigo-400 transition-colors"
+                        className="text-xs font-bold text-slate-500 hover:text-indigo-400 transition-colors flex items-center gap-1"
                     >
-                        About Breathe Free
+                        <Info size={12} /> About Breathe Free
+                    </button>
+                    <button 
+                        onClick={() => setShowOpenSource(true)}
+                        className="text-xs font-bold text-slate-500 hover:text-emerald-400 transition-colors flex items-center gap-1"
+                    >
+                        <Shield size={12} /> Why Open Source?
+                    </button>
+                    <button 
+                        onClick={() => setShowAITransparency(true)}
+                        className="text-xs font-bold text-slate-500 hover:text-purple-400 transition-colors flex items-center gap-1"
+                    >
+                        <Bot size={12} /> AI Transparency
+                    </button>
+                    <button 
+                        onClick={() => setShowRoadmap(true)}
+                        className="text-xs font-bold text-slate-500 hover:text-amber-400 transition-colors flex items-center gap-1"
+                    >
+                        <Map size={12} /> Project Roadmap
                     </button>
                 </div>
             </footer>
@@ -1203,8 +1245,14 @@ const App: React.FC = () => {
       )}
 
       {showAbout && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[80] flex items-center justify-center p-4">
-            <div className="bg-slate-900 w-full max-w-md rounded-3xl p-8 shadow-2xl animate-scale-in border border-slate-800 relative">
+        <div 
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[80] flex items-center justify-center p-4"
+            onClick={() => setShowAbout(false)}
+        >
+            <div 
+                className="bg-slate-900 w-full max-w-md rounded-3xl p-8 shadow-2xl animate-scale-in border border-slate-800 relative"
+                onClick={(e) => e.stopPropagation()}
+            >
                 <button 
                     onClick={() => setShowAbout(false)}
                     className="absolute top-4 right-4 p-2 bg-slate-800 rounded-full text-slate-500 hover:bg-slate-700 transition-colors"
@@ -1225,7 +1273,7 @@ const App: React.FC = () => {
                         Breathe Free was built to empower individuals to reclaim their health from nicotine addiction without selling their data.
                     </p>
                     <p>
-                        Unlike many health apps, we believe your journey is private. All data is stored locally on your device. We use no analytics, no tracking pixels, and no external servers for data storage.
+                        Unlike many health apps, this one was designed with the specific intent and belief that your journey is private. All data is stored locally on your device. This app does not, has never, and will never make use of user analytics, tracking pixels, external servers for data storage, or other privacy infringing features.
                     </p>
                     
                     <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50 mt-4">
@@ -1248,6 +1296,13 @@ const App: React.FC = () => {
                             </li>
                         </ul>
                     </div>
+
+                    <div className="mt-4 p-3 bg-red-900/20 border border-red-500/50 rounded-xl flex items-center gap-3">
+                        <AlertTriangle className="text-red-500 shrink-0" size={20} />
+                        <p className="text-xs font-bold text-red-400">
+                            This app is never intended to be sold, bartered, or traded. Free forever, free for life.
+                        </p>
+                    </div>
                 </div>
 
                 <div className="mt-8 text-center">
@@ -1261,6 +1316,209 @@ const App: React.FC = () => {
             </div>
         </div>
       )}
+
+      {showOpenSource && (
+        <div 
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[80] flex items-center justify-center p-4"
+            onClick={() => setShowOpenSource(false)}
+        >
+            <div 
+                className="bg-slate-900 w-full max-w-md rounded-3xl p-8 shadow-2xl animate-scale-in border border-slate-800 relative"
+                onClick={(e) => e.stopPropagation()}
+            >
+                <button 
+                    onClick={() => setShowOpenSource(false)}
+                    className="absolute top-4 right-4 p-2 bg-slate-800 rounded-full text-slate-500 hover:bg-slate-700 transition-colors"
+                >
+                    <X size={20} />
+                </button>
+                
+                <div className="flex flex-col items-center text-center mb-6">
+                    <div className="p-4 bg-emerald-900/30 rounded-2xl text-emerald-400 mb-4 border border-emerald-900/50">
+                        <Shield size={32} />
+                    </div>
+                    <h2 className="text-2xl font-bold text-white">Why Open Source?</h2>
+                    <p className="text-sm font-medium text-slate-400">Transparency is Trust</p>
+                </div>
+
+                <div className="space-y-6 text-sm text-slate-300">
+                    <div className="space-y-2">
+                        <h4 className="flex items-center gap-2 font-bold text-white">
+                            <FileCode size={16} className="text-blue-400" />
+                            Auditability
+                        </h4>
+                        <p className="text-xs leading-relaxed text-slate-400">
+                            "Open Source" means the code is publicly available. Anyone can inspect it to ensure there are no hidden trackers, spyware, or malicious algorithms designed to sell your habits.
+                        </p>
+                    </div>
+
+                    <div className="space-y-2">
+                        <h4 className="flex items-center gap-2 font-bold text-white">
+                            <Lock size={16} className="text-orange-400" />
+                            Data Sovereignty
+                        </h4>
+                        <p className="text-xs leading-relaxed text-slate-400">
+                            Breathe Free is "Local Only". Your health data lives on your device, not on some company or independent and unaccountable entities server. This app never attempts to contact outside servers to provide telemetry or marketing data. You own your recovery journey.
+                        </p>
+                    </div>
+
+                    <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
+                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wide mb-2">Supported By Principles From:</p>
+                        <ul className="space-y-2">
+                            <li>
+                                <a href="https://www.fsf.org/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between text-xs font-bold text-slate-300 hover:text-white group">
+                                    Free Software Foundation
+                                    <CheckCircle2 size={12} className="text-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://opensource.org/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between text-xs font-bold text-slate-300 hover:text-white group">
+                                    Open Source Initiative
+                                    <CheckCircle2 size={12} className="text-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                </a>
+                            </li>
+                             <li>
+                                <a href="https://www.eff.org/" target="_blank" rel="noopener noreferrer" className="flex items-center justify-between text-xs font-bold text-slate-300 hover:text-white group">
+                                    Electronic Frontier Foundation
+                                    <CheckCircle2 size={12} className="text-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+      )}
+
+      {showAITransparency && (
+        <div 
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[80] flex items-center justify-center p-4"
+            onClick={() => setShowAITransparency(false)}
+        >
+            <div 
+                className="bg-slate-900 w-full max-w-lg rounded-3xl p-8 shadow-2xl animate-scale-in border border-slate-800 relative"
+                onClick={(e) => e.stopPropagation()}
+            >
+                <button 
+                    onClick={() => setShowAITransparency(false)}
+                    className="absolute top-4 right-4 p-2 bg-slate-800 rounded-full text-slate-500 hover:bg-slate-700 transition-colors"
+                >
+                    <X size={20} />
+                </button>
+                
+                <div className="flex flex-col items-center text-center mb-6">
+                    <div className="p-4 bg-purple-900/30 rounded-2xl text-purple-400 mb-4 border border-purple-900/50">
+                        <Bot size={32} />
+                    </div>
+                    <h2 className="text-2xl font-bold text-white">AI Transparency Statement</h2>
+                    <p className="text-sm font-medium text-slate-400">Created with Human Vision & Machine Intelligence</p>
+                </div>
+
+                <div className="space-y-6 text-sm text-slate-300 leading-relaxed">
+                    <div>
+                        <h4 className="flex items-center gap-2 font-bold text-white mb-2">
+                            <Sparkles size={16} className="text-yellow-400" />
+                            A Historical Artifact
+                        </h4>
+                        <p className="text-xs">
+                            This app serves as a historical artifact of the 'vibecoding' era—a time when natural language became a programming language. It was generated as an intentional exercise in UX design, bridging the gap between concept and reality through Large Language Models.
+                        </p>
+                        <div className="mt-3 bg-emerald-900/20 border border-emerald-500/20 p-2 rounded-lg">
+                            <p className="text-[10px] font-bold text-emerald-400 text-center">
+                                "Originally created with Gemini 3 Pro Preview using Google AI Studio - January 2026"
+                            </p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 className="flex items-center gap-2 font-bold text-white mb-2">
+                            <Bot size={16} className="text-purple-400" />
+                            The Human Element
+                        </h4>
+                        <p className="text-xs">
+                            Created as a meaningful distraction from nicotine cravings, this project proves that building software can be a pleasant, revolutionary experience. It empowers those with a vision for product design and information systems to build freely, regardless of their coding fluency.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h4 className="flex items-center gap-2 font-bold text-white mb-2">
+                            <Shield size={16} className="text-blue-400" />
+                            Our Responsibility
+                        </h4>
+                        <p className="text-xs">
+                            With AI now woven into our reality, the responsibility falls on humans to guide it with wisdom. Despite the challenges ahead, there is immense hope. We have the power to use these tools to find truth, uplift one another, and understand the world we live in.
+                        </p>
+                    </div>
+
+                    <div className="mt-6 p-4 bg-gradient-to-r from-purple-900/20 to-blue-900/20 border border-purple-500/30 rounded-xl text-center">
+                        <p className="text-xs font-bold text-white">
+                            This app was created 100% with AI <span className="text-purple-400">*AND*</span> HUMANS. 
+                        </p>
+                        <p className="text-xs text-slate-300 mt-1">
+                            Now that AI is truly here, we must now work together to unlock the secrets of our universe.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+      )}
+
+      {showRoadmap && (
+        <div 
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[80] flex items-center justify-center p-4"
+            onClick={() => setShowRoadmap(false)}
+        >
+            <div 
+                className="bg-slate-900 w-full max-w-lg rounded-3xl p-8 shadow-2xl animate-scale-in border border-slate-800 relative"
+                onClick={(e) => e.stopPropagation()}
+            >
+                <button 
+                    onClick={() => setShowRoadmap(false)}
+                    className="absolute top-4 right-4 p-2 bg-slate-800 rounded-full text-slate-500 hover:bg-slate-700 transition-colors"
+                >
+                    <X size={20} />
+                </button>
+                
+                <div className="flex flex-col items-center text-center mb-6">
+                    <div className="p-4 bg-amber-900/30 rounded-2xl text-amber-400 mb-4 border border-amber-900/50">
+                        <Map size={32} />
+                    </div>
+                    <h2 className="text-2xl font-bold text-white">Project Roadmap</h2>
+                    <p className="text-sm font-medium text-slate-400">Future Visions & Historical Echoes</p>
+                </div>
+
+                <div className="space-y-6 text-sm text-slate-300 leading-relaxed">
+                    <div>
+                        <h4 className="flex items-center gap-2 font-bold text-white mb-2">
+                            <Gamepad2 size={16} className="text-indigo-400" />
+                            Gamification Evolution
+                        </h4>
+                        <p className="text-xs text-slate-400">
+                            The current "Shop" and "Games" are just the foundation. Future iterations could explore deeper RPG elements, customizable avatars, and more complex puzzle mechanics to distract from cravings—all while keeping the economy strictly local and offline.
+                        </p>
+                    </div>
+
+                    <div>
+                        <h4 className="flex items-center gap-2 font-bold text-white mb-2">
+                            <Clock size={16} className="text-emerald-400" />
+                            A Digital Artifact
+                        </h4>
+                        <p className="text-xs text-slate-400">
+                            Beyond its utility, this project serves as a point of historical interest. It represents a specific moment in time where open-source philosophy met the capabilities of early 2026 AI. It stands as a single data point in a much larger set of human-driven, AI-assisted creation.
+                        </p>
+                    </div>
+
+                    <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
+                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wide mb-2">The Path Forward</p>
+                        <p className="text-xs text-slate-400">
+                            This roadmap is not fixed. As an open-source tool, its destiny lies with the community. Fork it, mod it, and make it your own.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+      )}
+
     </div>
   );
 };

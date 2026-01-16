@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { ExternalLink, CheckSquare, Copy, Check, PenTool, MapPin, ChevronDown, ChevronUp, Landmark, Heart, Shield, Star, Users, Globe, HandHeart, Share2, Smartphone, Monitor, Code, Download, BookOpen, Phone, MessageCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ExternalLink, CheckSquare, Copy, Check, PenTool, MapPin, ChevronDown, ChevronUp, Landmark, Heart, Shield, Star, Users, Globe, HandHeart, Share2, Smartphone, Monitor, Code, Download, BookOpen, Phone, MessageCircle, DollarSign, Plus, TrendingDown } from 'lucide-react';
 
 interface CivicActionCardProps {
   onAction: () => void;
   isCompleted: boolean;
+  triggerShare?: number;
 }
 
 interface LetterTemplate {
@@ -60,13 +61,20 @@ const CHARITIES = [
   }
 ];
 
-const CivicActionCard: React.FC<CivicActionCardProps> = ({ onAction, isCompleted }) => {
+const CivicActionCard: React.FC<CivicActionCardProps> = ({ onAction, isCompleted, triggerShare }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState<'contact' | 'pledge' | 'share' | 'resources'>('contact');
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>(LETTER_TEMPLATES[0].id);
   const [targetOfficial, setTargetOfficial] = useState<'representative' | 'senator'>('representative');
   const [copied, setCopied] = useState(false);
   const [linkFeedback, setLinkFeedback] = useState(false);
+
+  useEffect(() => {
+    if (triggerShare) {
+      setIsExpanded(true);
+      setActiveTab('share');
+    }
+  }, [triggerShare]);
 
   const activeTemplate = LETTER_TEMPLATES.find(t => t.id === selectedTemplateId) || LETTER_TEMPLATES[0];
 
@@ -287,11 +295,19 @@ const CivicActionCard: React.FC<CivicActionCardProps> = ({ onAction, isCompleted
              {/* TAB 3: RESOURCES */}
              {activeTab === 'resources' && (
                 <div className="space-y-4 animate-fade-in">
-                    <div className="p-4 bg-slate-800/50 rounded-2xl border border-slate-700/50">
-                        <h4 className="font-bold text-slate-200 text-sm mb-1">Additional Support</h4>
-                        <p className="text-xs leading-relaxed text-slate-400">
-                            You are not alone. Connect with professional services and communities dedicated to helping you quit.
-                        </p>
+                    <div className="bg-emerald-900/20 border border-emerald-500/30 p-4 rounded-2xl flex items-start gap-3">
+                        <div className="bg-emerald-500/20 p-2 rounded-lg text-emerald-400 shrink-0 relative">
+                            <DollarSign size={20} />
+                            <div className="absolute -top-1 -right-1 bg-emerald-500 text-slate-900 rounded-full p-[1px]">
+                                <Plus size={8} strokeWidth={4} />
+                            </div>
+                        </div>
+                        <div>
+                            <h5 className="font-bold text-emerald-400 text-sm mb-1">Financial Assistance Available</h5>
+                            <p className="text-xs text-emerald-100/80 leading-relaxed">
+                                Many regions have programs that will provide <strong className="text-white">COMPLETELY FREE</strong> assistance in terms of nicotine patches, gum, support, and other methods to help you stop.
+                            </p>
+                        </div>
                     </div>
 
                     <div className="space-y-3">
@@ -349,6 +365,32 @@ const CivicActionCard: React.FC<CivicActionCardProps> = ({ onAction, isCompleted
                             </p>
                         </a>
                     </div>
+
+                    <div className="mt-6 pt-6 border-t border-slate-800">
+                        <div className="bg-red-950/30 rounded-2xl p-5 border border-red-900/30">
+                            <div className="flex items-center gap-2 mb-3">
+                                <TrendingDown size={20} className="text-red-500" />
+                                <h4 className="font-bold text-slate-200 text-sm">The Economic Toll of Big Tobacco</h4>
+                            </div>
+                            
+                            <div className="space-y-3 text-xs text-slate-400 leading-relaxed">
+                                <p>
+                                    The tobacco industry isn't just harming health; they are an economic parasite. They privatize billions in profits while socializing the devastating costs onto the public workforce and healthcare systems.
+                                </p>
+                                
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
+                                    <div className="bg-slate-900/50 p-3 rounded-xl border border-slate-800">
+                                        <strong className="text-red-400 block mb-1">Workforce Drain</strong>
+                                        <p className="text-[11px]">Addiction reduces productivity through absenteeism and health complications, weakening the labor force while corporations count their cash.</p>
+                                    </div>
+                                    <div className="bg-slate-900/50 p-3 rounded-xl border border-slate-800">
+                                        <strong className="text-red-400 block mb-1">Healthcare Strain</strong>
+                                        <p className="text-[11px]">Taxpayers foot the bill for treating preventable tobacco-induced diseases, diverting critical funds from education and infrastructure.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
              )}
 
@@ -388,9 +430,21 @@ const CivicActionCard: React.FC<CivicActionCardProps> = ({ onAction, isCompleted
                                     <p className="text-[10px] text-slate-500">Desktop Installer (.exe)</p>
                                 </div>
                             </div>
-                            <button className="mt-auto w-full py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-2 cursor-not-allowed opacity-70">
-                                <Download size={12} /> Coming Soon
-                            </button>
+                            
+                            <div className="mt-auto flex flex-col gap-2">
+                                <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider text-center">Download Mirrors</div>
+                                <div className="flex flex-wrap gap-2">
+                                    <a href="https://mega.nz/folder/0TlDWCgT#M9AJxXJXu6pVBdAglg2y3w" target="_blank" rel="noopener noreferrer" className="flex-1 py-1.5 bg-red-900/20 hover:bg-red-900/40 text-red-400 border border-red-900/30 rounded-lg text-[10px] font-bold flex items-center justify-center transition-colors">
+                                        Mega.nz
+                                    </a>
+                                    <a href="https://drive.google.com/drive/folders/1ADD7evG1AGvO-Fd-geApPJzOU4djoDlt?usp=sharing" target="_blank" rel="noopener noreferrer" className="flex-1 py-1.5 bg-blue-900/20 hover:bg-blue-900/40 text-blue-400 border border-blue-900/30 rounded-lg text-[10px] font-bold flex items-center justify-center transition-colors">
+                                        Google Drive
+                                    </a>
+                                    <a href="https://www.mediafire.com/folder/941nnkvwms9r2/Breathe_Free_App" target="_blank" rel="noopener noreferrer" className="flex-1 py-1.5 bg-sky-900/20 hover:bg-sky-900/40 text-sky-400 border border-sky-900/30 rounded-lg text-[10px] font-bold flex items-center justify-center transition-colors">
+                                        MediaFire
+                                    </a>
+                                </div>
+                            </div>
                         </div>
 
                         <div className="bg-slate-800/40 p-4 rounded-2xl border border-slate-800 flex flex-col gap-3">
@@ -419,7 +473,9 @@ const CivicActionCard: React.FC<CivicActionCardProps> = ({ onAction, isCompleted
                                 </div>
                             </div>
                             <a 
-                                href="#"
+                                href="https://github.com/janzt450/Breathe-Free---Quit-Vape"
+                                target="_blank"
+                                rel="noopener noreferrer"
                                 className="mt-auto w-full py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-2"
                             >
                                 <ExternalLink size={12} /> View Code

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AlertCircle, Wind, HeartPulse, ShieldAlert, ChevronDown, ChevronUp, ExternalLink, Brain, Globe, Factory, Zap, Battery, Droplets, Users, Flame } from 'lucide-react';
+import { AlertCircle, Wind, HeartPulse, ShieldAlert, ChevronDown, ChevronUp, ExternalLink, Brain, Globe, Factory, Zap, Battery, Droplets, Users, Flame, Skull } from 'lucide-react';
 
 type Tab = 'health' | 'environment' | 'society';
 
@@ -170,26 +170,50 @@ const WhyQuitCard: React.FC<WhyQuitCardProps> = ({ onDiscover }) => {
           {/* SOCIETY TAB */}
           {activeTab === 'society' && (
              <div className="space-y-4 animate-fade-in">
+                {/* Hero: Big Tobacco (Merged from Fight Back) */}
                 <div className="bg-indigo-50 dark:bg-indigo-900/10 rounded-2xl p-5 border border-indigo-100 dark:border-indigo-900/20">
                     <div className="flex gap-3">
-                        <Factory className="text-indigo-500 shrink-0 mt-0.5" size={20} />
+                        <Skull className="text-indigo-500 shrink-0 mt-0.5" size={20} />
                         <div>
-                            <h4 className="font-bold text-indigo-700 dark:text-indigo-400 text-sm mb-1">The Human Cost of Cobalt</h4>
+                            <h4 className="font-bold text-indigo-700 dark:text-indigo-400 text-sm mb-1">Tobacco Playbook 2.0</h4>
                             <p className="text-xs leading-relaxed text-indigo-600/80 dark:text-indigo-300/80">
-                                The cobalt in vape batteries often comes from the Democratic Republic of the Congo. Investigations have found children as young as six working in these artisanal mines, exposed to toxic dust that causes fatal lung disease, just to power single-use devices.
+                                Big Tobacco conglomerates (Altria, Philip Morris) have bought major stakes in the vaping industry. They are migrating their user base to a new, loosely regulated platform to sustain their profit margins, repeating history by denying harms while optimizing addiction.
                             </p>
                         </div>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Cobalt (Existing) */}
+                    <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800">
+                        <h5 className="font-bold text-slate-700 dark:text-slate-200 text-sm mb-3 flex items-center gap-2">
+                            <Factory size={16} className="text-orange-500" />
+                            Human Cost of Cobalt
+                        </h5>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                            Vape batteries rely on cobalt, often mined by children in the DRC exposed to toxic dust. Your "disposable" device has a permanent human cost.
+                        </p>
+                    </div>
+
+                    {/* Disposable Crisis (Merged from Fight Back) */}
+                    <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800">
+                        <h5 className="font-bold text-slate-700 dark:text-slate-200 text-sm mb-3 flex items-center gap-2">
+                            <ShieldAlert size={16} className="text-red-500" />
+                            The Disposable Crisis
+                        </h5>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                            Flooded with unregulated devices from Shenzhen, the market exploits loopholes using synthetic nicotine. These often contain unlisted heavy metals and nicotine levels far higher than labeled.
+                        </p>
+                    </div>
+
+                    {/* Environmental Justice (Existing) */}
                     <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800">
                          <h5 className="font-bold text-slate-700 dark:text-slate-200 text-sm mb-3 flex items-center gap-2">
                             <Globe size={16} className="text-emerald-500" />
                             Environmental Justice
                         </h5>
                         <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                            E-waste is frequently exported illegally to developing nations. Countries like Ghana become dumping grounds where workers burn plastics to recover copper, releasing dioxins that poison local communities. Your "disposable" habit leaves a permanent mark on the Global South.
+                            E-waste is exported to developing nations like Ghana, where burning plastics to recover copper releases dioxins, poisoning local communities.
                         </p>
                     </div>
                      <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800">
@@ -198,7 +222,7 @@ const WhyQuitCard: React.FC<WhyQuitCardProps> = ({ onDiscover }) => {
                             Engineered Addiction
                         </h5>
                         <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                            The shift to "nicotine salts" was an engineering choice to lower pH, allowing higher concentrations of nicotine to be inhaled without irritation. This effectively mimics the rapid arterial spike of combustible cigarettes, rewiring adolescent brains for dependency.
+                            "Nicotine salts" lower pH to allow higher concentrations without irritation, mimicking the rapid arterial spike of cigarettes to rewire adolescent brains.
                         </p>
                     </div>
                 </div>
