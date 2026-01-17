@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react';
-import { Brain, Wind, Wallet, Leaf, Shield, Trophy, ChevronDown, ChevronUp, Beaker, ShoppingBag, Bird, Check, Lock, Dog, Cat, Package, Flame, Sword, Shirt, Turtle, Snail, Egg, PawPrint, Gem, ArrowUpDown, Box, Gamepad2, Sparkles, HelpCircle, Shuffle, Type, GraduationCap, Calculator, Play, Circle, RotateCcw, Volume2, VolumeX, Info, Grid3x3, History, Zap, User, X } from 'lucide-react';
+import { Brain, Wind, Wallet, Leaf, Shield, Trophy, ChevronDown, ChevronUp, Beaker, ShoppingBag, Bird, Check, Lock, Dog, Cat, Package, Flame, Sword, Shirt, Turtle, Snail, Egg, PawPrint, Gem, ArrowUpDown, Box, Gamepad2, Sparkles, HelpCircle, Shuffle, Type, GraduationCap, Calculator, Play, Circle, RotateCcw, Volume2, VolumeX, Info, Grid3x3, History, Zap, User, X, Flag } from 'lucide-react';
 import { FinancialConfig, LogEntry, LogType, InventoryItem } from '../types';
 
 interface GamificationCardProps {
@@ -13,7 +13,8 @@ interface GamificationCardProps {
   totalXP: number; 
   onPurchase: (id: string, cost: number) => void;
   onEarn: (amount: number) => void;
-  onDiscover: (id: string) => void; 
+  onDiscover: (id: string) => void;
+  onShowCreditsInfo: () => void;
 }
 
 interface Skill {
@@ -48,7 +49,7 @@ type CCDifficulty = 'Easy' | 'Medium' | 'Hard';
 
 const GAME_PROGRESS_KEY = 'breathfree_games_v1';
 
-const GamificationCard: React.FC<GamificationCardProps> = ({ entries, config, lastPuffTime, startDate, currentTimestamp, balance, inventory, totalXP, onPurchase, onEarn, onDiscover }) => {
+const GamificationCard: React.FC<GamificationCardProps> = ({ entries, config, lastPuffTime, startDate, currentTimestamp, balance, inventory, totalXP, onPurchase, onEarn, onDiscover, onShowCreditsInfo }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('journey');
   const [sortOption, setSortOption] = useState<SortOption>('price_asc');
@@ -756,6 +757,49 @@ const GamificationCard: React.FC<GamificationCardProps> = ({ entries, config, la
           answer: "Lithium",
           options: ["Diamond", "Lithium", "Uranium", "Titanium"],
           reward: 400
+      }
+  ];
+
+  const capitalsQuiz = [
+      {
+          id: 'capitals_1',
+          difficulty: 'Level 1',
+          question: "What is the capital of Texas?",
+          answer: "Austin",
+          options: ["Houston", "Dallas", "Austin", "San Antonio"],
+          reward: 20
+      },
+      {
+          id: 'capitals_2',
+          difficulty: 'Level 2',
+          question: "What is the capital of New York?",
+          answer: "Albany",
+          options: ["New York City", "Buffalo", "Albany", "Rochester"],
+          reward: 50
+      },
+      {
+          id: 'capitals_3',
+          difficulty: 'Level 3',
+          question: "What is the capital of Nevada?",
+          answer: "Carson City",
+          options: ["Las Vegas", "Reno", "Carson City", "Henderson"],
+          reward: 100
+      },
+      {
+          id: 'capitals_4',
+          difficulty: 'Level 4',
+          question: "What is the capital of Washington?",
+          answer: "Olympia",
+          options: ["Seattle", "Spokane", "Tacoma", "Olympia"],
+          reward: 250
+      },
+      {
+          id: 'capitals_5',
+          difficulty: 'Level 5',
+          question: "What is the capital of Vermont?",
+          answer: "Montpelier",
+          options: ["Burlington", "Rutland", "Montpelier", "Essex"],
+          reward: 500
       }
   ];
 
@@ -1501,6 +1545,97 @@ const GamificationCard: React.FC<GamificationCardProps> = ({ entries, config, la
                         )}
                     </div>
 
+                    {/* US STATE CAPITALS QUIZ SECTION */}
+                    <div className="rounded-2xl border border-slate-800 bg-slate-800/30 overflow-hidden">
+                        <div 
+                           className="flex items-center justify-between p-4 cursor-pointer hover:bg-slate-800/50 transition-colors"
+                           onClick={() => toggleGameCategory('capitals')}
+                        >
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-indigo-500/20 rounded-lg text-indigo-400">
+                                    <Flag size={20} />
+                                </div>
+                                <h4 className="font-bold text-slate-200 text-sm">US State Capitals</h4>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">
+                                    {capitalsQuiz.filter(t => solvedGameIds.includes(t.id)).length}/{capitalsQuiz.length} Solved
+                                </span>
+                                {expandedGameCategory === 'capitals' ? <ChevronUp size={18} className="text-slate-500" /> : <ChevronDown size={18} className="text-slate-500" />}
+                            </div>
+                        </div>
+
+                        {expandedGameCategory === 'capitals' && (
+                            <div className="p-3 pt-0 space-y-3 animate-scale-in origin-top">
+                                <div className="h-px bg-slate-800 mb-3"></div>
+                                {capitalsQuiz.map((item) => {
+                                    const isSolved = solvedGameIds.includes(item.id);
+                                    const isActive = activeLevelId === item.id;
+
+                                    return (
+                                        <div key={item.id} className={`rounded-xl border transition-all ${
+                                            isSolved 
+                                                ? 'bg-emerald-900/10 border-emerald-900/20' 
+                                                : isActive 
+                                                    ? 'bg-slate-800 border-indigo-500/50' 
+                                                    : 'bg-slate-800/40 border-slate-800 hover:border-slate-700'
+                                        }`}>
+                                            <button 
+                                                onClick={() => !isSolved && setActiveLevelId(isActive ? null : item.id)}
+                                                disabled={isSolved}
+                                                className="w-full flex items-center justify-between p-4 text-left"
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                                                        isSolved ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-700/50 text-slate-400'
+                                                    }`}>
+                                                        {isSolved ? <Check size={16} /> : <Flag size={16} />}
+                                                    </div>
+                                                    <div>
+                                                        <div className="flex items-center gap-2 mb-0.5">
+                                                            <span className="font-bold text-sm text-slate-200">{item.difficulty}</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-1 text-[10px] text-slate-500 font-bold">
+                                                            <Gem size={10} className="text-indigo-400" />
+                                                            <span className="text-indigo-400">+{item.reward} Credits</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                {!isSolved && (
+                                                    <div className="text-slate-500">
+                                                        {isActive ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                                                    </div>
+                                                )}
+                                            </button>
+
+                                            {isActive && !isSolved && (
+                                                <div className="px-4 pb-4 animate-scale-in origin-top">
+                                                    <p className="text-sm text-slate-200 font-bold mb-4 p-3 bg-slate-900/50 rounded-xl border border-slate-800">
+                                                        {item.question}
+                                                    </p>
+                                                    <div className="grid grid-cols-2 gap-2">
+                                                        {item.options.map((option) => (
+                                                            <button 
+                                                                key={option}
+                                                                onClick={() => handleOptionSelect(item.id, option, item.answer, item.reward)}
+                                                                className="py-3 px-2 bg-slate-700/50 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-bold transition-all hover:scale-[0.98] active:scale-95 border border-slate-700 hover:border-indigo-500/30"
+                                                            >
+                                                                {option}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                    {gameFeedback === 'error' && (
+                                                         <p className="text-xs text-red-400 font-bold text-center mt-3 animate-pulse">Incorrect, try again!</p>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </div>
+
                     {/* HEALTH TRIVIA SECTION */}
                     <div className="rounded-2xl border border-slate-800 bg-slate-800/30 overflow-hidden">
                         <div 
@@ -1699,14 +1834,17 @@ const GamificationCard: React.FC<GamificationCardProps> = ({ entries, config, la
                     
                     {/* Compact Credits UI */}
                     <div className="flex justify-center mb-6">
-                        <div className="bg-slate-800/80 px-6 py-2 rounded-full border border-slate-700 flex items-center gap-3 shadow-sm hover:bg-slate-800 transition-colors cursor-default">
+                        <button 
+                            onClick={onShowCreditsInfo}
+                            className="bg-slate-800/80 px-6 py-2 rounded-full border border-slate-700 flex items-center gap-3 shadow-sm hover:bg-slate-800 transition-colors cursor-pointer"
+                        >
                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Available Credits</span>
                              <div className="h-4 w-px bg-slate-700"></div>
                              <div className="flex items-center gap-1.5 text-indigo-400">
                                 <Gem size={14} />
                                 <span className="text-lg font-bold font-mono tracking-tight">{balance.toLocaleString()}</span>
                              </div>
-                        </div>
+                        </button>
                     </div>
 
                     {/* Sorting Controls */}

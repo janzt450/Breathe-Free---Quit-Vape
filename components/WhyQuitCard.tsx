@@ -5,9 +5,10 @@ type Tab = 'health' | 'environment' | 'society';
 
 interface WhyQuitCardProps {
   onDiscover: (id: string) => void;
+  onOpenLink: (url: string) => void;
 }
 
-const WhyQuitCard: React.FC<WhyQuitCardProps> = ({ onDiscover }) => {
+const WhyQuitCard: React.FC<WhyQuitCardProps> = ({ onDiscover, onOpenLink }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('health');
 
@@ -231,14 +232,12 @@ const WhyQuitCard: React.FC<WhyQuitCardProps> = ({ onDiscover }) => {
 
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-0 justify-between items-center pt-4 border-t border-slate-100 dark:border-slate-800">
             <span className="text-[10px] text-slate-400 font-medium">Data Sources: CDC, EPA, Amnesty International</span>
-            <a 
-              href="https://www.cdc.gov/tobacco/e-cigarettes/health-effects.html" 
-              target="_blank" 
-              rel="noopener noreferrer"
+            <button 
+              onClick={() => onOpenLink("https://www.cdc.gov/tobacco/e-cigarettes/health-effects.html")}
               className="flex items-center gap-1 text-xs font-bold text-indigo-500 hover:text-indigo-600 transition-colors"
             >
               Verify The Data <ExternalLink size={12} />
-            </a>
+            </button>
           </div>
         </div>
       )}

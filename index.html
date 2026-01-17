@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BreathFree - Quit Tracker</title>
+    <!-- Tailwind CDN for development/preview. Production build uses compiled CSS. -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -15,36 +16,22 @@
             },
             animation: {
               'scale-in': 'scaleIn 0.2s ease-out forwards',
+              'fade-in': 'fadeIn 0.5s ease-out forwards',
             },
             keyframes: {
               scaleIn: {
                 '0%': { transform: 'scale(0.9)', opacity: '0' },
                 '100%': { transform: 'scale(1)', opacity: '1' },
+              },
+              fadeIn: {
+                '0%': { opacity: '0' },
+                '100%': { opacity: '1' },
               }
             }
           }
         }
       }
     </script>
-    <style>
-      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-      
-      body {
-        background-color: #020617; /* matches slate-950 */
-      }
-
-      /* Custom scrollbar for webkit */
-      ::-webkit-scrollbar {
-        width: 6px;
-      }
-      ::-webkit-scrollbar-track {
-        background: transparent;
-      }
-      ::-webkit-scrollbar-thumb {
-        background: #475569;
-        border-radius: 3px;
-      }
-    </style>
 <script type="importmap">
 {
   "imports": {

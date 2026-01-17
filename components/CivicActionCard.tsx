@@ -5,6 +5,7 @@ interface CivicActionCardProps {
   onAction: () => void;
   isCompleted: boolean;
   triggerShare?: number;
+  onOpenLink: (url: string) => void;
 }
 
 interface LetterTemplate {
@@ -61,7 +62,7 @@ const CHARITIES = [
   }
 ];
 
-const CivicActionCard: React.FC<CivicActionCardProps> = ({ onAction, isCompleted, triggerShare }) => {
+const CivicActionCard: React.FC<CivicActionCardProps> = ({ onAction, isCompleted, triggerShare, onOpenLink }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState<'contact' | 'pledge' | 'share' | 'resources'>('contact');
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>(LETTER_TEMPLATES[0].id);
@@ -96,7 +97,13 @@ const CivicActionCard: React.FC<CivicActionCardProps> = ({ onAction, isCompleted
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleLinkClick = () => {
+  const handleLinkClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const url = targetOfficial === 'representative' 
+      ? "https://www.house.gov/representatives/find-your-representative" 
+      : "https://www.senate.gov/senators/senators-contact.htm";
+    
+    onOpenLink(url);
     onAction();
     setLinkFeedback(true);
     setTimeout(() => setLinkFeedback(false), 3000);
@@ -207,12 +214,7 @@ const CivicActionCard: React.FC<CivicActionCardProps> = ({ onAction, isCompleted
                   </div>
 
                   <div>
-                      <a 
-                          href={targetOfficial === 'representative' 
-                              ? "https://www.house.gov/representatives/find-your-representative" 
-                              : "https://www.senate.gov/senators/senators-contact.htm"} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
+                      <button 
                           onClick={handleLinkClick}
                           className={`w-full flex items-center justify-center gap-2 py-4 rounded-xl font-bold transition-all duration-300 ${
                               linkFeedback
@@ -225,17 +227,15 @@ const CivicActionCard: React.FC<CivicActionCardProps> = ({ onAction, isCompleted
                           ) : (
                               <>Contact your {targetOfficial === 'representative' ? 'Representative' : 'Senator'} <ExternalLink size={16} /></>
                           )}
-                      </a>
+                      </button>
                       
                       <div className="flex flex-col items-center mt-4">
-                          <a 
-                              href="https://tools.usps.com/zip-code-lookup.htm" 
-                              target="_blank" 
-                              rel="noopener noreferrer"
+                          <button 
+                              onClick={() => onOpenLink("https://tools.usps.com/zip-code-lookup.htm")}
                               className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 hover:text-slate-300 transition-colors uppercase tracking-wide bg-slate-800/50 hover:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700/50 hover:border-slate-600"
                           >
                               <MapPin size={12} /> Find my ZIP Code
-                          </a>
+                          </button>
                       </div>
                   </div>
                </div>
@@ -278,14 +278,12 @@ const CivicActionCard: React.FC<CivicActionCardProps> = ({ onAction, isCompleted
                                         </span>
                                     </div>
                                 </div>
-                                <a 
-                                    href={charity.url} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
+                                <button 
+                                    onClick={() => onOpenLink(charity.url)}
                                     className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-2 shrink-0"
                                 >
                                     Donate <ExternalLink size={12} />
-                                </a>
+                                </button>
                             </div>
                         ))}
                     </div>
@@ -311,11 +309,9 @@ const CivicActionCard: React.FC<CivicActionCardProps> = ({ onAction, isCompleted
                     </div>
 
                     <div className="space-y-3">
-                        <a 
-                            href="https://smokefree.gov/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="block bg-slate-800/40 p-4 rounded-2xl border border-slate-800 hover:border-slate-600 hover:bg-slate-800 transition-all group"
+                        <button 
+                            onClick={() => onOpenLink("https://smokefree.gov/")}
+                            className="w-full block bg-slate-800/40 p-4 rounded-2xl border border-slate-800 hover:border-slate-600 hover:bg-slate-800 transition-all group text-left"
                         >
                             <div className="flex items-center justify-between mb-2">
                                 <div className="flex items-center gap-2">
@@ -327,13 +323,11 @@ const CivicActionCard: React.FC<CivicActionCardProps> = ({ onAction, isCompleted
                             <p className="text-[11px] text-slate-400 leading-relaxed">
                                 The National Cancer Institute's dedicated website for quitting. Offers quit plans, text message programs, and apps.
                             </p>
-                        </a>
+                        </button>
 
-                        <a 
-                            href="https://www.thetruth.com/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="block bg-slate-800/40 p-4 rounded-2xl border border-slate-800 hover:border-slate-600 hover:bg-slate-800 transition-all group"
+                        <button 
+                            onClick={() => onOpenLink("https://www.thetruth.com/")}
+                            className="w-full block bg-slate-800/40 p-4 rounded-2xl border border-slate-800 hover:border-slate-600 hover:bg-slate-800 transition-all group text-left"
                         >
                             <div className="flex items-center justify-between mb-2">
                                 <div className="flex items-center gap-2">
@@ -345,13 +339,11 @@ const CivicActionCard: React.FC<CivicActionCardProps> = ({ onAction, isCompleted
                             <p className="text-[11px] text-slate-400 leading-relaxed">
                                 Text <strong className="text-orange-400">DITCHVAPE</strong> to <strong className="text-white">88709</strong>. A 24/7 anonymous text message program specifically for quitting vaping.
                             </p>
-                        </a>
+                        </button>
 
-                        <a 
-                            href="https://www.cdc.gov/tobacco/campaign/tips/index.html"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="block bg-slate-800/40 p-4 rounded-2xl border border-slate-800 hover:border-slate-600 hover:bg-slate-800 transition-all group"
+                        <button 
+                            onClick={() => onOpenLink("https://www.cdc.gov/tobacco/campaign/tips/index.html")}
+                            className="w-full block bg-slate-800/40 p-4 rounded-2xl border border-slate-800 hover:border-slate-600 hover:bg-slate-800 transition-all group text-left"
                         >
                             <div className="flex items-center justify-between mb-2">
                                 <div className="flex items-center gap-2">
@@ -363,7 +355,7 @@ const CivicActionCard: React.FC<CivicActionCardProps> = ({ onAction, isCompleted
                             <p className="text-[11px] text-slate-400 leading-relaxed">
                                 A free telephone portal to a network of state quitlines. Connects you with trained coaches in your area.
                             </p>
-                        </a>
+                        </button>
                     </div>
 
                     <div className="mt-6 pt-6 border-t border-slate-800">
@@ -434,15 +426,15 @@ const CivicActionCard: React.FC<CivicActionCardProps> = ({ onAction, isCompleted
                             <div className="mt-auto flex flex-col gap-2">
                                 <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider text-center">Download Mirrors</div>
                                 <div className="flex flex-wrap gap-2">
-                                    <a href="https://mega.nz/folder/0TlDWCgT#M9AJxXJXu6pVBdAglg2y3w" target="_blank" rel="noopener noreferrer" className="flex-1 py-1.5 bg-red-900/20 hover:bg-red-900/40 text-red-400 border border-red-900/30 rounded-lg text-[10px] font-bold flex items-center justify-center transition-colors">
+                                    <button onClick={() => onOpenLink("https://mega.nz/folder/0TlDWCgT#M9AJxXJXu6pVBdAglg2y3w")} className="flex-1 py-1.5 bg-red-900/20 hover:bg-red-900/40 text-red-400 border border-red-900/30 rounded-lg text-[10px] font-bold flex items-center justify-center transition-colors">
                                         Mega.nz
-                                    </a>
-                                    <a href="https://drive.google.com/drive/folders/1ADD7evG1AGvO-Fd-geApPJzOU4djoDlt?usp=sharing" target="_blank" rel="noopener noreferrer" className="flex-1 py-1.5 bg-blue-900/20 hover:bg-blue-900/40 text-blue-400 border border-blue-900/30 rounded-lg text-[10px] font-bold flex items-center justify-center transition-colors">
+                                    </button>
+                                    <button onClick={() => onOpenLink("https://drive.google.com/drive/folders/1ADD7evG1AGvO-Fd-geApPJzOU4djoDlt?usp=sharing")} className="flex-1 py-1.5 bg-blue-900/20 hover:bg-blue-900/40 text-blue-400 border border-blue-900/30 rounded-lg text-[10px] font-bold flex items-center justify-center transition-colors">
                                         Google Drive
-                                    </a>
-                                    <a href="https://www.mediafire.com/folder/941nnkvwms9r2/Breathe_Free_App" target="_blank" rel="noopener noreferrer" className="flex-1 py-1.5 bg-sky-900/20 hover:bg-sky-900/40 text-sky-400 border border-sky-900/30 rounded-lg text-[10px] font-bold flex items-center justify-center transition-colors">
+                                    </button>
+                                    <button onClick={() => onOpenLink("https://www.mediafire.com/folder/941nnkvwms9r2/Breathe_Free_App")} className="flex-1 py-1.5 bg-sky-900/20 hover:bg-sky-900/40 text-sky-400 border border-sky-900/30 rounded-lg text-[10px] font-bold flex items-center justify-center transition-colors">
                                         MediaFire
-                                    </a>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -472,14 +464,12 @@ const CivicActionCard: React.FC<CivicActionCardProps> = ({ onAction, isCompleted
                                     <p className="text-[10px] text-slate-500">GitHub Repository</p>
                                 </div>
                             </div>
-                            <a 
-                                href="https://github.com/janzt450/Breathe-Free---Quit-Vape"
-                                target="_blank"
-                                rel="noopener noreferrer"
+                            <button 
+                                onClick={() => onOpenLink("https://github.com/janzt450/Breathe-Free---Quit-Vape")}
                                 className="mt-auto w-full py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-2"
                             >
                                 <ExternalLink size={12} /> View Code
-                            </a>
+                            </button>
                         </div>
                     </div>
                 </div>

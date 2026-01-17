@@ -1,17 +1,17 @@
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Plus, X, Wind, ShieldCheck, Settings, Trash2, AlertTriangle, Calendar, Download, Upload, Clock, GripHorizontal, Gem, Bug, Layout, Gamepad2, ToggleLeft, ToggleRight, Trophy, Github, Edit2, PlayCircle, RefreshCw, Share2, Shield, Lock, FileCode, CheckCircle2, Info, Bot, Sparkles, Leaf, Map, Wallet, Globe, ExternalLink, CheckSquare, Square, Monitor, HardDrive, AlertOctagon, Check } from 'lucide-react';
-import { LogEntry, LogType, FinancialConfig, InventoryItem } from './types';
-import { APP_STORAGE_KEY, REMIND_ME_STORAGE_KEY, INVENTORY_STORAGE_KEY, WALLET_STORAGE_KEY, SETTINGS_STORAGE_KEY, QUIT_DATE_STORAGE_KEY } from './constants';
-import LogHistory from './components/LogHistory';
-import StatsChart from './components/StatsChart';
-import FinancialCard from './components/FinancialCard';
-import WhyQuitCard from './components/WhyQuitCard';
-import GamificationCard from './components/GamificationCard';
-import RemindMeCard from './components/RemindMeCard';
-import EditEntryModal from './components/EditEntryModal';
-import RewardFeedback from './components/RewardFeedback';
-import CivicActionCard from './components/CivicActionCard';
+import { LogEntry, LogType, FinancialConfig, InventoryItem } from '../types';
+import { APP_STORAGE_KEY, REMIND_ME_STORAGE_KEY, INVENTORY_STORAGE_KEY, WALLET_STORAGE_KEY, SETTINGS_STORAGE_KEY, QUIT_DATE_STORAGE_KEY } from '../constants';
+import LogHistory from './LogHistory';
+import StatsChart from './StatsChart';
+import FinancialCard from './FinancialCard';
+import WhyQuitCard from './WhyQuitCard';
+import GamificationCard from './GamificationCard';
+import RemindMeCard from './RemindMeCard';
+import EditEntryModal from './EditEntryModal';
+import RewardFeedback from './RewardFeedback';
+import CivicActionCard from './CivicActionCard';
 
 const FINANCIAL_STORAGE_KEY = 'breathfree_financial_v1';
 const CARD_ORDER_STORAGE_KEY = 'breathfree_card_order_v1';
@@ -432,7 +432,7 @@ const App: React.FC = () => {
     setInventory([]);
     setWalletState({ spent: 0, debug: 0, earned: 0, xp: 0, discovered: [] });
     setQuitTimestamp(null);
-    setTimer({ days: 0, hours: 0, minutes: 0, seconds: 0 }); // Explicit reset
+    setTimer({ days: 0, hours: 0, minutes: 0, seconds: 0 });
     
     localStorage.removeItem(APP_STORAGE_KEY);
     localStorage.removeItem(FINANCIAL_STORAGE_KEY);
@@ -448,7 +448,7 @@ const App: React.FC = () => {
     setShowSettings(false);
     setConfirmDeleteCheckbox(false);
     
-    // Fix: Force component remount via key change instead of crashing with window.location.reload()
+    // Increment resetKey to force component remount instead of reloading page
     setResetKey(prev => prev + 1);
   };
 
@@ -563,7 +563,6 @@ const App: React.FC = () => {
             if (lastPuff) updateQuitTimestamp(lastPuff);
         }
 
-        // Fix: Force component remount via key change instead of crashing with window.location.reload()
         setResetKey(prev => prev + 1);
         setShowSettings(false);
       } catch (error) {
@@ -1825,4 +1824,3 @@ const App: React.FC = () => {
 };
 
 export default App;
-    
